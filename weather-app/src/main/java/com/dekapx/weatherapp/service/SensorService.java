@@ -4,7 +4,7 @@ import com.dekapx.weatherapp.entity.SensorReading;
 
 import java.util.List;
 
-public sealed interface SensorService permits SensorServiceImpl {
+public interface SensorService {
     SensorReading getReading(String sensorId);
 
     List<SensorReading> getAllReadings();
