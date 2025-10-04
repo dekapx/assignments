@@ -1,38 +1,47 @@
 package com.dekapx.weatherapp.service;
 
 import com.dekapx.weatherapp.entity.SensorReading;
+import com.dekapx.weatherapp.exception.ResourceNotFoundException;
+import com.dekapx.weatherapp.repository.SensorRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
 public final class SensorServiceImpl implements SensorService {
+    private SensorRepository sensorRepository;
+
+    @Autowired
+    public SensorServiceImpl(final SensorRepository sensorRepository) {
+        this.sensorRepository = sensorRepository;
+    }
 
     @Override
     public SensorReading getReading(final String sensorId) {
-        return buildResponse(sensorId);
+        return Optional.ofNullable(this.sensorRepository.findBySensorId(sensorId))
+                .orElseThrow(() -> new ResourceNotFoundException("Sensor with id [" + sensorId + "] not found"));
     }
 
     @Override
     public List<SensorReading> getAllReadings() {
-        return List.of(buildResponse(null));
+        List<SensorReading> sensorReadings = new ArrayList<>();
+        this.sensorRepository.findAll().forEach(sensorReadings::add);
+        return sensorReadings;
     }
 
     @Override
     public SensorReading registerReading(final SensorReading sensorReading) {
-        return buildResponse(sensorReading.getSensorId());
+        log.info("Register sensor reading for Sensor ID : [{}]", sensorReading.getSensorId());
+        return sensorRepository.save(sensorReading);
     }
 
-    private SensorReading buildResponse(String sensorId) {
-        return SensorReading.builder()
-                .sensorId(Optional.ofNullable(sensorId).orElse("Sensor-1"))
-                .temperature(24.5)
-                .humidity(60.0)
-                .windSpeed(15.0)
-                .timestamp(java.time.LocalDateTime.now())
-                .build();
+    public Double getAverageTemperature(LocalDateTime start, LocalDateTime end) {
+        return sensorRepository.findAverageTemperatureByDateRange(start, end);
     }
 }

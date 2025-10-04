@@ -59,6 +59,14 @@ public class SensorRepositoryTest {
                 .extracting(SensorReading::getSensorId).contains(SENSOR_ID);
     }
 
+    @Test
+    public void shouldReturnAverageTemperatureByDateRange() {
+        Double averageTemperature = this.sensorRepository.findAverageTemperatureByDateRange(now().minusDays(1), now().plusDays(1));
+        assertThat(averageTemperature)
+                .isNotNull()
+                .isEqualTo(TEMPERATURE);
+    }
+
     private SensorReading buildSensorReading() {
         return SensorReading.builder()
                 .sensorId(SENSOR_ID)
