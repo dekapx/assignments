@@ -1,0 +1,63 @@
+package com.dekapx.weatherapp.service;
+
+import com.dekapx.weatherapp.entity.SensorReading;
+import com.dekapx.weatherapp.exception.ResourceNotFoundException;
+import com.dekapx.weatherapp.repository.SensorRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static com.dekapx.weatherapp.common.SensorReadingTestData.HUMIDITY;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.SENSOR_ID;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.TEMPERATURE;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.WIND_SPEED;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.buildSensorReading;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+public class SensorServiceImplTest {
+    @Mock
+    private SensorRepository sensorRepository;
+
+    @InjectMocks
+    private SensorServiceImpl sensorService;
+
+    @Test
+    void givenSensorId_shouldReturnSensorReading() {
+        SensorReading reading = buildSensorReading();
+        when(sensorRepository.findBySensorId(SENSOR_ID)).thenReturn(reading);
+
+        SensorReading sensorReading = this.sensorService.getReading(SENSOR_ID);
+
+        assertThat(sensorReading)
+                .isNotNull()
+                .satisfies(o -> {
+                    assertThat(o.getSensorId()).isEqualTo(SENSOR_ID);
+                    assertThat(o.getTemperature()).isEqualTo(TEMPERATURE);
+                    assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
+                    assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
+                    assertThat(o.getTimestamp()).isNotNull();
+                });
+        verify(sensorRepository).findBySensorId(SENSOR_ID);
+    }
+
+    @Test
+    void givenSensorId_shouldThrowResourceNotFoundException() {
+        when(sensorRepository.findBySensorId(SENSOR_ID)).thenReturn(null);
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            this.sensorService.getReading(SENSOR_ID);
+        });
+
+        String expectedMessage = "Sensor with id [" + SENSOR_ID + "] not found";
+        String actualMessage = exception.getMessage();
+
+        assertThat(expectedMessage).isEqualTo(actualMessage);
+        verify(sensorRepository).findBySensorId(SENSOR_ID);
+    }
+}

@@ -10,16 +10,16 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dekapx.weatherapp.common.SensorReadingTestData.HUMIDITY;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.SENSOR_ID;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.TEMPERATURE;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.WIND_SPEED;
+import static com.dekapx.weatherapp.common.SensorReadingTestData.buildSensorReading;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 public class SensorRepositoryTest {
-    private static final String SENSOR_ID = "Sensor-1";
-    private static final double TEMPERATURE = 25.5;
-    private static final double HUMIDITY = 60.0;
-    private static final double WIND_SPEED = 15.0;
-
     @Autowired
     private SensorRepository sensorRepository;
 
@@ -35,7 +35,7 @@ public class SensorRepositoryTest {
 
     @Test
     public void shouldReturnSensorReadingForGivenSensorId() {
-        SensorReading optionalSensorReading = sensorRepository.findBySensorId(SENSOR_ID);
+        SensorReading optionalSensorReading = this.sensorRepository.findBySensorId(SENSOR_ID);
         assertThat(optionalSensorReading)
                 .isNotNull()
                 .satisfies(o -> {
@@ -65,15 +65,5 @@ public class SensorRepositoryTest {
         assertThat(averageTemperature)
                 .isNotNull()
                 .isEqualTo(TEMPERATURE);
-    }
-
-    private SensorReading buildSensorReading() {
-        return SensorReading.builder()
-                .sensorId(SENSOR_ID)
-                .temperature(TEMPERATURE)
-                .humidity(HUMIDITY)
-                .windSpeed(WIND_SPEED)
-                .timestamp(now())
-                .build();
     }
 }
