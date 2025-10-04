@@ -21,21 +21,9 @@ import static com.dekapx.weatherapp.common.ResourceUrls.SENSOR_URL;
 @RequestMapping(BASE_URL)
 @RequiredArgsConstructor
 public class SensorController {
-
-    @PostMapping(SENSOR_URL)
-    public SensorReadingModel registerReading(@RequestBody SensorReadingModel sensorReadingModel) {
-        log.info("Received sensor reading: {}", sensorReadingModel);
-        return SensorReadingModel.builder()
-                .sensorId("Sensor-1")
-                .temperature(24.5)
-                .humidity(60.0)
-                .windSpeed(15.0)
-                .timestamp(java.time.LocalDateTime.now())
-                .build();
-    }
-
+    @Operation(summary = "Get Sensor Reading by Sensor ID")
     @GetMapping(SENSOR_URL + "/{sensorId}")
-    public SensorReadingModel getReadingBySensorId(String sensorId) {
+    public SensorReadingModel getReading(String sensorId) {
         log.info("Fetching sensor reading for sensorId: {}", sensorId);
         return SensorReadingModel.builder()
                 .sensorId(sensorId)
@@ -46,6 +34,7 @@ public class SensorController {
                 .build();
     }
 
+    @Operation(summary = "Get All Sensor Readings")
     @GetMapping(SENSOR_URL)
     public List<SensorReadingModel> getAllReadings() {
         return List.of(SensorReadingModel.builder()
@@ -55,6 +44,19 @@ public class SensorController {
                 .windSpeed(15.0)
                 .timestamp(java.time.LocalDateTime.now())
                 .build());
+    }
+
+    @Operation(summary = "Register Sensor Reading")
+    @PostMapping(SENSOR_URL)
+    public SensorReadingModel registerReading(@RequestBody SensorReadingModel sensorReadingModel) {
+        log.info("Received sensor reading: {}", sensorReadingModel);
+        return SensorReadingModel.builder()
+                .sensorId("Sensor-1")
+                .temperature(24.5)
+                .humidity(60.0)
+                .windSpeed(15.0)
+                .timestamp(java.time.LocalDateTime.now())
+                .build();
     }
 
     @Operation(summary = "Weather API Info")
