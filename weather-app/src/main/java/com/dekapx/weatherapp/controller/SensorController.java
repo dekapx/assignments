@@ -114,5 +114,4 @@ public class SensorController {
                 .timestamp(model.getTimestamp())
                 .build();
     }
-
 }
