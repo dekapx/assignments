@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.dekapx.weatherapp.common.MetricType.*;
+import static com.dekapx.weatherapp.common.ResourceUrls.AVERAGE_METRIC_FOR_SENSOR_URL;
+import static com.dekapx.weatherapp.common.ResourceUrls.AVERAGE_TEMPERATURE_URL;
 import static com.dekapx.weatherapp.common.ResourceUrls.BASE_URL;
 import static com.dekapx.weatherapp.common.ResourceUrls.INFO_URL;
+import static com.dekapx.weatherapp.common.ResourceUrls.SENSOR_BY_ID_URL;
 import static com.dekapx.weatherapp.common.ResourceUrls.SENSOR_URL;
 
 @Slf4j
@@ -47,7 +49,7 @@ public class SensorController {
     }
 
     @Operation(summary = "Get Sensor Readings by Sensor ID")
-    @GetMapping(SENSOR_URL + "/{sensorId}")
+    @GetMapping(SENSOR_BY_ID_URL)
     public ResponseEntity<List<SensorReading>> getReadings(@PathVariable String sensorId) {
         List<SensorReading> sensorReadings  = this.sensorService.getReadings(sensorId);
         return new ResponseEntity<>(sensorReadings, HttpStatus.OK);
@@ -62,12 +64,13 @@ public class SensorController {
 
     @Operation(summary = "Register Sensor Reading")
     @PostMapping(SENSOR_URL)
-    public ResponseEntity<SensorReading> registerReading(@RequestBody SensorReading sensorReading) {
-        return new ResponseEntity<>(this.sensorService.registerReading(sensorReading), HttpStatus.CREATED);
+    public ResponseEntity<SensorReading> registerReading(@RequestBody SensorReadingModel model) {
+        SensorReading entity = mapToEntity(model);
+        return new ResponseEntity<>(this.sensorService.registerReading(entity), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get Average Temperature within Date Range")
-    @GetMapping(SENSOR_URL + "/average")
+    @GetMapping(AVERAGE_TEMPERATURE_URL)
     public ResponseEntity<Double> getAverageTemperature(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
@@ -76,7 +79,7 @@ public class SensorController {
     }
 
     @Operation(summary = "Get Average Metric for Sensor within Date Range")
-    @GetMapping(SENSOR_URL + "/{sensorId}/average")
+    @GetMapping(AVERAGE_METRIC_FOR_SENSOR_URL)
     public ResponseEntity<Double> getAverageMetricForSensor(
             @PathVariable String sensorId,
             @RequestParam String metric,
