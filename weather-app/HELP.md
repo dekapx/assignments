@@ -22,3 +22,13 @@
 - start: 2025-10-01T22:11:41.400Z 
 - end: 2025-10-02T00:13:41.400Z
 ```
+```sql
+CREATE TABLE sensor_readings (
+    id SERIAL PRIMARY KEY,
+    sensor_id VARCHAR(255) NOT NULL,
+    temperature decimal NOT NULL,
+    humidity decimal NOT NULL,
+    wind_speed decimal NOT NULL,
+    timestamp TIMESTAMP NOT NULL
+);
+```
