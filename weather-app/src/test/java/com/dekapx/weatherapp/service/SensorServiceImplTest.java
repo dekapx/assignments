@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.dekapx.weatherapp.common.SensorReadingTestData.HUMIDITY;
@@ -99,7 +100,38 @@ public class SensorServiceImplTest {
                     assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
                     assertThat(o.getTimestamp()).isNotNull();
                 });
-        verify(sensorRepository, times(1)).save(reading);
+        verify(sensorRepository, times(1)).save(any(SensorReading.class));
+    }
+
+    @Test
+    void givenDateRange_shouldReturnAverageTemperature() {
+        SensorReading reading = buildSensorReading();
+        LocalDateTime startTime = reading.getTimestamp().minusHours(1);
+        LocalDateTime endTime = reading.getTimestamp().plusHours(1);
+
+        when(sensorRepository.findAverageTemperatureByDateRange(any(), any())).thenReturn(TEMPERATURE);
+        Double averageTemperature = this.sensorService.getAverageTemperatureByDateRange(startTime, endTime);
+
+        assertThat(averageTemperature)
+                .isNotNull()
+                .isEqualTo(TEMPERATURE);
+        verify(sensorRepository, times(1)).findAverageTemperatureByDateRange(any(), any());
+    }
+
+    @Test
+    void givenSensorIdAndMetricAndDateRange_shouldReturnAverageMetricForSensor() {
+        String metric = "TEMPERATURE";
+        SensorReading reading = buildSensorReading();
+        LocalDateTime startTime = reading.getTimestamp().minusHours(1);
+        LocalDateTime endTime = reading.getTimestamp().plusHours(1);
+
+        when(sensorRepository.findBySensorIdAndDateRange(any(), any(), any()))
+                .thenReturn(List.of(reading));
+        Double averageMetric = this.sensorService.getAverageMetricForSensor(SENSOR_ID, metric, startTime, endTime);
+        assertThat(averageMetric)
+                .isNotNull()
+                .isEqualTo(TEMPERATURE);
+        verify(sensorRepository, times(1)).findBySensorIdAndDateRange(any(), any(), any());
     }
 
 }
