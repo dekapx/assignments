@@ -6,7 +6,9 @@ import com.dekapx.weatherapp.exception.ResourceNotFoundException;
 import com.dekapx.weatherapp.repository.SensorRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,9 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.dekapx.weatherapp.config.CacheConfig.SENSOR_CACHE;
+
 @Slf4j
 @Service
-public final class SensorServiceImpl implements SensorService {
+@Transactional
+public class SensorServiceImpl implements SensorService {
     private static Map<String, MetricType> metricMap = Map.of(
             "TEMPERATURE", MetricType.TEMPERATURE,
             "HUMIDITY", MetricType.HUMIDITY,
@@ -30,6 +35,7 @@ public final class SensorServiceImpl implements SensorService {
     }
 
     @Override
+    @Cacheable(value = SENSOR_CACHE, key = "#sensorId")
     public List<SensorReading> getReadings(final String sensorId) {
         log.info("Fetching sensor reading for sensorId: [{}]", sensorId);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorId(sensorId);
