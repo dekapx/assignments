@@ -14,5 +14,5 @@ public interface SensorService {
 
     Double getAverageTemperatureByDateRange(LocalDateTime start, LocalDateTime end);
 
-    List<SensorReading> getReadingsBySensorIdAndDateRange(String sensorId, LocalDateTime startTime, LocalDateTime endTime);
+    Double getAverageMetricForSensor(String sensorId, String metric, LocalDateTime startTime, LocalDateTime endTime);
 }

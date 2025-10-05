@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static com.dekapx.weatherapp.common.SensorReadingTestData.HUMIDITY;
 import static com.dekapx.weatherapp.common.SensorReadingTestData.SENSOR_ID;
 import static com.dekapx.weatherapp.common.SensorReadingTestData.TEMPERATURE;
@@ -16,6 +18,8 @@ import static com.dekapx.weatherapp.common.SensorReadingTestData.WIND_SPEED;
 import static com.dekapx.weatherapp.common.SensorReadingTestData.buildSensorReading;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +47,7 @@ public class SensorServiceImplTest {
                     assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
                     assertThat(o.getTimestamp()).isNotNull();
                 });
-        verify(sensorRepository).findBySensorId(SENSOR_ID);
+        verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
     }
 
     @Test
@@ -58,6 +62,44 @@ public class SensorServiceImplTest {
         String actualMessage = exception.getMessage();
 
         assertThat(expectedMessage).isEqualTo(actualMessage);
-        verify(sensorRepository).findBySensorId(SENSOR_ID);
+        verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
     }
+
+    @Test
+    void givenNothing_shouldReturnAllSensorReadings() {
+        SensorReading reading = buildSensorReading();
+        when(sensorRepository.findAll()).thenReturn(List.of(reading));
+
+        List<SensorReading> sensorReadings = this.sensorService.getAllReadings();
+
+        assertThat(sensorReadings)
+                .isNotNull()
+                .hasSize(1)
+                .first()
+                .satisfies(o -> {
+                    assertThat(o.getSensorId()).isEqualTo(SENSOR_ID);
+                    assertThat(o.getTemperature()).isEqualTo(TEMPERATURE);
+                    assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
+                    assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
+                });
+        verify(sensorRepository, times(1)).findAll();
+    }
+
+    @Test
+    void givenSensorReading_shouldRegisterAndReturnSensorReading() {
+        SensorReading reading = buildSensorReading();
+        when(sensorRepository.save(any(SensorReading.class))).thenReturn(reading);
+        SensorReading sensorReading = this.sensorService.registerReading(reading);
+        assertThat(sensorReading)
+                .isNotNull()
+                .satisfies(o -> {
+                    assertThat(o.getSensorId()).isEqualTo(SENSOR_ID);
+                    assertThat(o.getTemperature()).isEqualTo(TEMPERATURE);
+                    assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
+                    assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
+                    assertThat(o.getTimestamp()).isNotNull();
+                });
+        verify(sensorRepository, times(1)).save(reading);
+    }
+
 }

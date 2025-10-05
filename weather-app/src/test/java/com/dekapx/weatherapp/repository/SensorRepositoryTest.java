@@ -56,15 +56,28 @@ public class SensorRepositoryTest {
                 .isNotEmpty()
                 .hasSize(1)
                 .hasAtLeastOneElementOfType(SensorReading.class)
-                .filteredOn(c -> c.getId().equals(1L))
                 .extracting(SensorReading::getSensorId).contains(SENSOR_ID);
     }
 
     @Test
     public void shouldReturnAverageTemperatureByDateRange() {
-        Double averageTemperature = this.sensorRepository.findAverageTemperatureByDateRange(now().minusDays(1), now().plusDays(1));
+        Double averageTemperature = this.sensorRepository.findAverageTemperatureByDateRange(
+                now().minusDays(1),
+                now().plusDays(1));
         assertThat(averageTemperature)
                 .isNotNull()
                 .isEqualTo(TEMPERATURE);
+    }
+
+    @Test
+    public void shouldReturnSensorReadingsBySensorIdAndDateRange() {
+        List<SensorReading> sensorReadings = this.sensorRepository.findBySensorIdAndDateRange(SENSOR_ID,
+                now().minusDays(1),
+                now().plusDays(1));
+        assertThat(sensorReadings)
+                .isNotEmpty()
+                .hasSize(1)
+                .hasAtLeastOneElementOfType(SensorReading.class)
+                .extracting(SensorReading::getSensorId).contains(SENSOR_ID);
     }
 }

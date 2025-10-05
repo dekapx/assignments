@@ -1,5 +1,6 @@
 package com.dekapx.weatherapp.service;
 
+import com.dekapx.weatherapp.common.MetricType;
 import com.dekapx.weatherapp.entity.SensorReading;
 import com.dekapx.weatherapp.exception.ResourceNotFoundException;
 import com.dekapx.weatherapp.repository.SensorRepository;
@@ -10,11 +11,17 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Service
 public final class SensorServiceImpl implements SensorService {
+    private static Map<String, MetricType> metricMap = Map.of(
+            "TEMPERATURE", MetricType.TEMPERATURE,
+            "HUMIDITY", MetricType.HUMIDITY,
+            "WIND_SPEED", MetricType.WIND_SPEED);
+
     private SensorRepository sensorRepository;
 
     @Autowired
@@ -49,9 +56,23 @@ public final class SensorServiceImpl implements SensorService {
     }
 
     @Override
-    public List<SensorReading> getReadingsBySensorIdAndDateRange(String sensorId, LocalDateTime startTime, LocalDateTime endTime) {
+    public Double getAverageMetricForSensor(String sensorId, String metric, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("Fetching sensor readings for sensorId: [{}] between [{}] and [{}]", sensorId, startTime, endTime);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorIdAndDateRange(sensorId, startTime, endTime);
-        return sensorReadings;
+        return calculateAverage(sensorReadings, metricMap.get(metric));
+    }
+
+    private double calculateAverage(List<SensorReading> readings, MetricType metricType) {
+        return readings.stream()
+                .mapToDouble(reading -> {
+                    switch (metricType) {
+                        case TEMPERATURE: return reading.getTemperature();
+                        case HUMIDITY: return reading.getHumidity();
+                        case WIND_SPEED: return reading.getWindSpeed();
+                        default: throw new IllegalArgumentException("Invalid metric: " + metricType);
+                    }
+                })
+                .average()
+                .orElse(Double.NaN);
     }
 }
