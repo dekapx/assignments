@@ -5,7 +5,6 @@ import com.dekapx.weatherapp.model.SensorReadingModel;
 import com.dekapx.weatherapp.service.SensorService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -33,12 +32,10 @@ import static com.dekapx.weatherapp.common.ResourceUrls.SENSOR_URL;
 @RequestMapping(BASE_URL)
 public class SensorController {
     private SensorService sensorService;
-    private ModelMapper modelMapper;
 
     @Autowired
-    public SensorController(SensorService sensorService, ModelMapper modelMapper) {
+    public SensorController(SensorService sensorService) {
         this.sensorService = sensorService;
-        this.modelMapper = modelMapper;
     }
 
     @Operation(summary = "Weather API Info")
@@ -50,23 +47,26 @@ public class SensorController {
 
     @Operation(summary = "Get Sensor Readings by Sensor ID")
     @GetMapping(SENSOR_BY_ID_URL)
-    public ResponseEntity<List<SensorReading>> getReadings(@PathVariable String sensorId) {
+    public ResponseEntity<List<SensorReadingModel>> getReadings(@PathVariable String sensorId) {
         List<SensorReading> sensorReadings  = this.sensorService.getReadings(sensorId);
-        return new ResponseEntity<>(sensorReadings, HttpStatus.OK);
+        List<SensorReadingModel> models = mapToModels(sensorReadings);
+        return new ResponseEntity<>(models, HttpStatus.OK);
     }
 
     @Operation(summary = "Get All Sensor Readings")
     @GetMapping(SENSOR_URL)
-    public ResponseEntity<List<SensorReading>> getAllReadings() {
+    public ResponseEntity<List<SensorReadingModel>> getAllReadings() {
         List<SensorReading> sensorReadings  = this.sensorService.getAllReadings();
-        return new ResponseEntity<>(sensorReadings, HttpStatus.OK);
+        List<SensorReadingModel> models = mapToModels(sensorReadings);
+        return new ResponseEntity<>(models, HttpStatus.OK);
     }
 
     @Operation(summary = "Register Sensor Reading")
     @PostMapping(SENSOR_URL)
-    public ResponseEntity<SensorReading> registerReading(@RequestBody SensorReadingModel model) {
+    public ResponseEntity<SensorReadingModel> registerReading(@RequestBody SensorReadingModel model) {
         SensorReading entity = mapToEntity(model);
-        return new ResponseEntity<>(this.sensorService.registerReading(entity), HttpStatus.CREATED);
+        SensorReadingModel savedModel = mapToModel(this.sensorService.registerReading(entity));
+        return new ResponseEntity<>(savedModel, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get Average Temperature within Date Range")
@@ -89,14 +89,30 @@ public class SensorController {
         return new ResponseEntity<>(averageMetric, HttpStatus.OK);
     }
 
-    private SensorReadingModel mapToModel(SensorReading sensorReading) {
-        SensorReadingModel sensorReadingModel = this.modelMapper.map(sensorReading, SensorReadingModel.class);
-        return sensorReadingModel;
+    private List<SensorReadingModel> mapToModels(List<SensorReading> entities) {
+        return entities.stream()
+                .map(this::mapToModel)
+                .toList();
     }
 
-    private SensorReading mapToEntity(SensorReadingModel sensorReadingModel) {
-        SensorReading sensorReading = this.modelMapper.map(sensorReadingModel, SensorReading.class);
-        return sensorReading;
+    private SensorReadingModel mapToModel(SensorReading entity) {
+        return SensorReadingModel.builder()
+                .sensorId(entity.getSensorId())
+                .temperature(entity.getTemperature())
+                .humidity(entity.getHumidity())
+                .windSpeed(entity.getWindSpeed())
+                .timestamp(entity.getTimestamp())
+                .build();
+    }
+
+    private SensorReading mapToEntity(SensorReadingModel model) {
+        return SensorReading.builder()
+                .sensorId(model.getSensorId())
+                .temperature(model.getTemperature())
+                .humidity(model.getHumidity())
+                .windSpeed(model.getWindSpeed())
+                .timestamp(model.getTimestamp())
+                .build();
     }
 
 }

@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SensorReadingModel {
-    private Long id;
     private String sensorId;
     private double temperature;
     private double humidity;
