@@ -23,6 +23,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(SensorController.class)
 public class SensorControllerTest {
+    private static final String API_INFO_URI = "/api/v1/info";
+    private static final String SENSOR_API_URI = "/api/v1/sensor";
+    private static final String SENSOR_BY_ID_API_URI = "/api/v1/sensor/{sensorId}";
+    private static final String SENSOR_AVERAGE_API_URI = "/api/v1/sensor/average";
+    private static final String SENSOR_BY_ID_AVERAGE_API_URI = "/api/v1/sensor/{sensorId}/average";
+
+    private static final String HUMIDITY = "humidity";
+    private static final String METRIC = "metric";
+    private static final String START_TIME = "startTime";
+    private static final String END_TIME = "endTime";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -31,7 +42,7 @@ public class SensorControllerTest {
 
     @Test
     void getInfo_shouldReturnApiInfo() throws Exception {
-        mockMvc.perform(get("/api/v1/info"))
+        mockMvc.perform(get(API_INFO_URI))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Weather API v1.0"));
     }
@@ -41,7 +52,7 @@ public class SensorControllerTest {
         SensorReading sensorReading = buildSensorReading();
         List<SensorReading> mockReadings = List.of(sensorReading);
         when(sensorService.getAllReadings()).thenReturn(mockReadings);
-        mockMvc.perform(get("/api/v1/sensor")
+        mockMvc.perform(get(SENSOR_API_URI)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].sensorId").value(SENSOR_ID))
@@ -55,7 +66,7 @@ public class SensorControllerTest {
         SensorReading sensorReading = buildSensorReading();
         List<SensorReading> mockReadings = List.of(sensorReading);
         when(sensorService.getReadings(SENSOR_ID)).thenReturn(mockReadings);
-        mockMvc.perform(get("/api/v1/sensor/{sensorId}", SENSOR_ID)
+        mockMvc.perform(get(SENSOR_BY_ID_API_URI, SENSOR_ID)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].sensorId").value(SENSOR_ID))
@@ -67,12 +78,10 @@ public class SensorControllerTest {
     @Test
     void getAverageTemperatureByDateRange_shouldReturnAverageTemperature() throws Exception {
         double averageTemperature = 26.5;
-        LocalDateTime start = LocalDateTime.of(2025, 10, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2025, 10, 5, 23, 59);
-        when(sensorService.getAverageTemperatureByDateRange(start, end)).thenReturn(averageTemperature);
-        mockMvc.perform(get("/api/v1/sensor/average")
-                        .param("startTime", "2025-10-01T00:00")
-                        .param("endTime", "2025-10-05T23:59")
+        when(sensorService.getAverageTemperatureByDateRange(getStartTime(), getEndTime())).thenReturn(averageTemperature);
+        mockMvc.perform(get(SENSOR_AVERAGE_API_URI)
+                        .param(START_TIME, "2025-10-01T00:00")
+                        .param(END_TIME, "2025-10-05T23:59")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("26.5"));
@@ -81,13 +90,11 @@ public class SensorControllerTest {
     @Test
     void getAverageMetricForSensor_shouldReturnAverageMetric() throws Exception {
         double averageHumidity = 62.0;
-        LocalDateTime start = LocalDateTime.of(2025, 10, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2025, 10, 5, 23, 59);
-        when(sensorService.getAverageMetricForSensor(SENSOR_ID, "humidity", start, end)).thenReturn(averageHumidity);
-        mockMvc.perform(get("/api/v1/sensor/{sensorId}/average", SENSOR_ID)
-                        .param("metric", "humidity")
-                        .param("startTime", "2025-10-01T00:00")
-                        .param("endTime", "2025-10-05T23:59")
+        when(sensorService.getAverageMetricForSensor(SENSOR_ID, HUMIDITY, getStartTime(), getEndTime())).thenReturn(averageHumidity);
+        mockMvc.perform(get(SENSOR_BY_ID_AVERAGE_API_URI, SENSOR_ID)
+                        .param(METRIC, HUMIDITY)
+                        .param(START_TIME, "2025-10-01T00:00")
+                        .param(END_TIME, "2025-10-05T23:59")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("62.0"));
@@ -96,20 +103,24 @@ public class SensorControllerTest {
     @Test
     void registerReading_shouldCreateNewSensorReading() throws Exception {
         SensorReading sensorReading = buildSensorReading();
-        SensorReading savedReading = buildSensorReading();
+        when(sensorService.registerReading(sensorReading)).thenReturn(sensorReading);
 
-        when(sensorService.registerReading(sensorReading)).thenReturn(savedReading);
-
-        String requestBody = toJson(sensorReading);
-
-        mockMvc.perform(post("/api/v1/sensor")
+        mockMvc.perform(post(SENSOR_API_URI)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(toJson(sensorReading)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.sensorId").value(SENSOR_ID))
                 .andExpect(jsonPath("$.temperature").value(25.5))
                 .andExpect(jsonPath("$.humidity").value(60.0))
                 .andExpect(jsonPath("$.windSpeed").value(15.0));
+    }
+
+    private LocalDateTime getStartTime() {
+        return LocalDateTime.of(2025, 10, 1, 0, 0);
+    }
+
+    private LocalDateTime getEndTime() {
+        return LocalDateTime.of(2025, 10, 5, 23, 59);
     }
 
     private String toJson(SensorReading sensorReading) {
@@ -129,5 +140,4 @@ public class SensorControllerTest {
                 sensorReading.getTimestamp().toString()
         );
     }
-
 }
