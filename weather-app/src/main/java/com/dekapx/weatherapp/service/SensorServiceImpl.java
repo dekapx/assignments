@@ -44,7 +44,14 @@ public final class SensorServiceImpl implements SensorService {
     }
 
     @Override
-    public Double getAverageTemperature(LocalDateTime start, LocalDateTime end) {
-        return sensorRepository.findAverageTemperatureByDateRange(start, end);
+    public Double getAverageTemperatureByDateRange(LocalDateTime startTime, LocalDateTime endTime) {
+        return sensorRepository.findAverageTemperatureByDateRange(startTime, endTime);
+    }
+
+    @Override
+    public List<SensorReading> getReadingsBySensorIdAndDateRange(String sensorId, LocalDateTime startTime, LocalDateTime endTime) {
+        log.info("Fetching sensor readings for sensorId: [{}] between [{}] and [{}]", sensorId, startTime, endTime);
+        List<SensorReading> sensorReadings = this.sensorRepository.findBySensorIdAndDateRange(sensorId, startTime, endTime);
+        return sensorReadings;
     }
 }

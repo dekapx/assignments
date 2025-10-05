@@ -12,5 +12,7 @@ public interface SensorService {
 
     SensorReading registerReading(SensorReading sensorReading);
 
-    Double getAverageTemperature(LocalDateTime start, LocalDateTime end);
+    Double getAverageTemperatureByDateRange(LocalDateTime start, LocalDateTime end);
+
+    List<SensorReading> getReadingsBySensorIdAndDateRange(String sensorId, LocalDateTime startTime, LocalDateTime endTime);
 }
