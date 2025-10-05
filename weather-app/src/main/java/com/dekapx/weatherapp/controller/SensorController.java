@@ -1,6 +1,8 @@
 package com.dekapx.weatherapp.controller;
 
 import com.dekapx.weatherapp.entity.SensorReading;
+import com.dekapx.weatherapp.model.AverageMetricModel;
+import com.dekapx.weatherapp.model.AverageTemperatureModel;
 import com.dekapx.weatherapp.model.SensorReadingModel;
 import com.dekapx.weatherapp.service.SensorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,22 +73,30 @@ public class SensorController {
 
     @Operation(summary = "Get Average Temperature within Date Range")
     @GetMapping(AVERAGE_TEMPERATURE_URL)
-    public ResponseEntity<Double> getAverageTemperature(
+    public ResponseEntity<AverageTemperatureModel> getAverageTemperature(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         Double averageTemperature = this.sensorService.getAverageTemperatureByDateRange(startTime, endTime);
-        return new ResponseEntity<>(averageTemperature, HttpStatus.OK);
+        AverageTemperatureModel model = AverageTemperatureModel
+                .builder()
+                .averageTemperature(averageTemperature)
+                .build();
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @Operation(summary = "Get Average Metric for Sensor within Date Range")
     @GetMapping(AVERAGE_METRIC_FOR_SENSOR_URL)
-    public ResponseEntity<Double> getAverageMetricForSensor(
+    public ResponseEntity<AverageMetricModel> getAverageMetricForSensor(
             @PathVariable String sensorId,
             @RequestParam String metric,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
         Double averageMetric = this.sensorService.getAverageMetricForSensor(sensorId, metric, startTime, endTime);
-        return new ResponseEntity<>(averageMetric, HttpStatus.OK);
+        AverageMetricModel model = AverageMetricModel
+                .builder()
+                .average(averageMetric)
+                .build();
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     private List<SensorReadingModel> mapToModels(List<SensorReading> entities) {

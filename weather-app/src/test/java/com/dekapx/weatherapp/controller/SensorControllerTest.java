@@ -84,7 +84,7 @@ public class SensorControllerTest {
                         .param(END_TIME, "2025-10-05T23:59")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("26.5"));
+                .andExpect(jsonPath("$.averageTemperature").value(26.5));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class SensorControllerTest {
                         .param(END_TIME, "2025-10-05T23:59")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("62.0"));
+                .andExpect(jsonPath("$.average").value(62.0));
     }
 
     @Test
