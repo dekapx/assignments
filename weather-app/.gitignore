@@ -1,33 +1,45 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Compiled source #
+*.class
+*/bin/*
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
+# Eclipse files
 .project
+.classpath
 .settings
-.springBeans
-.sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+#Intellij Files
 *.iml
-*.ipr
+.idea
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Packages
+*.jar
 
-### VS Code ###
-.vscode/
+# Maven build files
+target
+reports
+# ARQ tests
+arq-perf
+
+# Gradle build files
+.gradle
+bin
+build
+
+# PMD
+.pmd
+
+# Merge files
+*.orig
+*.versionsBackup
+
+# jboss files
+transaction.log
+*.log
+
+# python
+.pydevproject
+
+*.*~
+
+.DS_Store
+*.parquet*
