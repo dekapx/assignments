@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SensorService {
-    SensorReading getReading(String sensorId);
+    List<SensorReading> getReadings(String sensorId);
 
     List<SensorReading> getAllReadings();
 

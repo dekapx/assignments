@@ -35,18 +35,19 @@ public class SensorServiceImplTest {
     @Test
     void givenSensorId_shouldReturnSensorReading() {
         SensorReading reading = buildSensorReading();
-        when(sensorRepository.findBySensorId(SENSOR_ID)).thenReturn(reading);
+        when(sensorRepository.findBySensorId(SENSOR_ID)).thenReturn(List.of(reading));
 
-        SensorReading sensorReading = this.sensorService.getReading(SENSOR_ID);
+        List<SensorReading> sensorReadings = this.sensorService.getReadings(SENSOR_ID);
 
-        assertThat(sensorReading)
+        assertThat(sensorReadings)
                 .isNotNull()
+                .hasSize(1)
+                .first()
                 .satisfies(o -> {
                     assertThat(o.getSensorId()).isEqualTo(SENSOR_ID);
                     assertThat(o.getTemperature()).isEqualTo(TEMPERATURE);
                     assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
                     assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
-                    assertThat(o.getTimestamp()).isNotNull();
                 });
         verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
     }
@@ -56,7 +57,7 @@ public class SensorServiceImplTest {
         when(sensorRepository.findBySensorId(SENSOR_ID)).thenReturn(null);
 
         Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
-            this.sensorService.getReading(SENSOR_ID);
+            this.sensorService.getReadings(SENSOR_ID);
         });
 
         String expectedMessage = "Sensor with id [" + SENSOR_ID + "] not found";

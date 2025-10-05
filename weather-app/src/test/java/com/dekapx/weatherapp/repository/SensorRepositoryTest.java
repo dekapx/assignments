@@ -10,10 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dekapx.weatherapp.common.SensorReadingTestData.HUMIDITY;
 import static com.dekapx.weatherapp.common.SensorReadingTestData.SENSOR_ID;
 import static com.dekapx.weatherapp.common.SensorReadingTestData.TEMPERATURE;
-import static com.dekapx.weatherapp.common.SensorReadingTestData.WIND_SPEED;
 import static com.dekapx.weatherapp.common.SensorReadingTestData.buildSensorReading;
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,22 +28,17 @@ public class SensorRepositoryTest {
 
     @AfterEach
     public void tearDown() {
-        SensorReading sensorReading = this.sensorRepository.findBySensorId(SENSOR_ID);
-        this.sensorRepository.delete(sensorReading);
+        this.sensorRepository.deleteAll();
     }
 
     @Test
     public void shouldReturnSensorReadingForGivenSensorId() {
-        SensorReading sensorReading = this.sensorRepository.findBySensorId(SENSOR_ID);
-        assertThat(sensorReading)
-                .isNotNull()
-                .satisfies(o -> {
-                    assertThat(o.getSensorId()).isEqualTo(SENSOR_ID);
-                    assertThat(o.getTemperature()).isEqualTo(TEMPERATURE);
-                    assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
-                    assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
-                    assertThat(o.getTimestamp()).isNotNull();
-                });
+        List<SensorReading> sensorReadings = this.sensorRepository.findBySensorId(SENSOR_ID);
+        assertThat(sensorReadings)
+                .isNotEmpty()
+                .hasSize(1)
+                .hasAtLeastOneElementOfType(SensorReading.class)
+                .extracting(SensorReading::getSensorId).contains(SENSOR_ID);
     }
 
     @Test

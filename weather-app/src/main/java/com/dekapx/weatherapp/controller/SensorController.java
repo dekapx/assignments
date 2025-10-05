@@ -1,9 +1,11 @@
 package com.dekapx.weatherapp.controller;
 
 import com.dekapx.weatherapp.entity.SensorReading;
+import com.dekapx.weatherapp.model.SensorReadingModel;
 import com.dekapx.weatherapp.service.SensorService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,12 @@ import static com.dekapx.weatherapp.common.ResourceUrls.SENSOR_URL;
 @RequestMapping(BASE_URL)
 public class SensorController {
     private SensorService sensorService;
+    private ModelMapper modelMapper;
 
     @Autowired
-    public SensorController(SensorService sensorService) {
+    public SensorController(SensorService sensorService, ModelMapper modelMapper) {
         this.sensorService = sensorService;
+        this.modelMapper = modelMapper;
     }
 
     @Operation(summary = "Weather API Info")
@@ -42,11 +46,11 @@ public class SensorController {
         return "Weather API v1.0";
     }
 
-    @Operation(summary = "Get Sensor Reading by Sensor ID")
+    @Operation(summary = "Get Sensor Readings by Sensor ID")
     @GetMapping(SENSOR_URL + "/{sensorId}")
-    public ResponseEntity<SensorReading> getReading(@PathVariable String sensorId) {
-        SensorReading sensorReading = this.sensorService.getReading(sensorId);
-        return new ResponseEntity<>(sensorReading, HttpStatus.OK);
+    public ResponseEntity<List<SensorReading>> getReadings(@PathVariable String sensorId) {
+        List<SensorReading> sensorReadings  = this.sensorService.getReadings(sensorId);
+        return new ResponseEntity<>(sensorReadings, HttpStatus.OK);
     }
 
     @Operation(summary = "Get All Sensor Readings")
@@ -81,4 +85,15 @@ public class SensorController {
         Double averageMetric = this.sensorService.getAverageMetricForSensor(sensorId, metric, startTime, endTime);
         return new ResponseEntity<>(averageMetric, HttpStatus.OK);
     }
+
+    private SensorReadingModel mapToModel(SensorReading sensorReading) {
+        SensorReadingModel sensorReadingModel = this.modelMapper.map(sensorReading, SensorReadingModel.class);
+        return sensorReadingModel;
+    }
+
+    private SensorReading mapToEntity(SensorReadingModel sensorReadingModel) {
+        SensorReading sensorReading = this.modelMapper.map(sensorReadingModel, SensorReading.class);
+        return sensorReading;
+    }
+
 }

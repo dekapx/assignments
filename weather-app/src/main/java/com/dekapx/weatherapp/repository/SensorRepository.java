@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface SensorRepository extends CrudRepository<SensorReading, Long> {
-    SensorReading findBySensorId(String sensorId);
+    List<SensorReading> findBySensorId(String sensorId);
 
     @Query("SELECT AVG(s.temperature) FROM SensorReading s WHERE s.timestamp BETWEEN :startTime AND :endTime")
     Double findAverageTemperatureByDateRange(
