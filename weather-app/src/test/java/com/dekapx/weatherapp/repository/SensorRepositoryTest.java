@@ -30,13 +30,14 @@ public class SensorRepositoryTest {
 
     @AfterEach
     public void tearDown() {
-        this.sensorRepository.deleteAll();
+        SensorReading sensorReading = this.sensorRepository.findBySensorId(SENSOR_ID);
+        this.sensorRepository.delete(sensorReading);
     }
 
     @Test
     public void shouldReturnSensorReadingForGivenSensorId() {
-        SensorReading optionalSensorReading = this.sensorRepository.findBySensorId(SENSOR_ID);
-        assertThat(optionalSensorReading)
+        SensorReading sensorReading = this.sensorRepository.findBySensorId(SENSOR_ID);
+        assertThat(sensorReading)
                 .isNotNull()
                 .satisfies(o -> {
                     assertThat(o.getSensorId()).isEqualTo(SENSOR_ID);

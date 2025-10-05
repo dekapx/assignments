@@ -24,12 +24,14 @@ public final class SensorServiceImpl implements SensorService {
 
     @Override
     public SensorReading getReading(final String sensorId) {
+        log.info("Fetching sensor reading for sensorId: [{}]", sensorId);
         return Optional.ofNullable(this.sensorRepository.findBySensorId(sensorId))
                 .orElseThrow(() -> new ResourceNotFoundException("Sensor with id [" + sensorId + "] not found"));
     }
 
     @Override
     public List<SensorReading> getAllReadings() {
+        log.info("Fetching all sensor readings...");
         List<SensorReading> sensorReadings = new ArrayList<>();
         this.sensorRepository.findAll().forEach(sensorReadings::add);
         return sensorReadings;
