@@ -6,6 +6,7 @@ import com.dekapx.weatherapp.exception.ResourceNotFoundException;
 import com.dekapx.weatherapp.repository.SensorRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
+    @CacheEvict(value = SENSOR_CACHE, key = "#sensorReading.sensorId")
     public SensorReading registerReading(final SensorReading sensorReading) {
         log.info("Register sensor reading for Sensor ID : [{}]", sensorReading.getSensorId());
         return sensorRepository.save(sensorReading);
