@@ -62,6 +62,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public Double getAverageTemperatureByDateRange(LocalDateTime startTime, LocalDateTime endTime) {
+        log.info("Fetching average temperature between [{}] and [{}]", startTime, endTime);
         return sensorRepository.findAverageTemperatureByDateRange(startTime, endTime);
     }
 
@@ -69,7 +70,12 @@ public class SensorServiceImpl implements SensorService {
     public Double getAverageMetricForSensor(String sensorId, String metric, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("Fetching sensor readings for sensorId: [{}] between [{}] and [{}]", sensorId, startTime, endTime);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorIdAndDateRange(sensorId, startTime, endTime);
-        return calculateAverage(sensorReadings, metricMap.get(metric));
+        return calculateAverage(sensorReadings, getMetricType(metric));
+    }
+
+    private MetricType getMetricType(String metric) {
+        return Optional.ofNullable(metricMap.get(metric))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid metric: " + metric + ". Valid metrics are TEMPERATURE, HUMIDITY, WIND_SPEED"));
     }
 
     private double calculateAverage(List<SensorReading> readings, MetricType metricType) {
