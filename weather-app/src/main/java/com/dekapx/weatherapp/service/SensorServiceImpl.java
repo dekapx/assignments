@@ -40,9 +40,7 @@ public class SensorServiceImpl implements SensorService {
     public List<SensorReading> getReadings(final String sensorId) {
         log.info("Fetching sensor reading for sensorId: [{}]", sensorId);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorId(sensorId);
-        return Optional.ofNullable(sensorReadings)
-                .filter(readings -> !readings.isEmpty())
-                .orElseThrow(() -> new ResourceNotFoundException("Sensors with id [" + sensorId + "] not found"));
+        return validateSensorReadings(sensorId, sensorReadings);
     }
 
     @Override
@@ -70,10 +68,14 @@ public class SensorServiceImpl implements SensorService {
     public Double getAverageMetricForSensor(String sensorId, String metric, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("Fetching sensor readings for sensorId: [{}] between [{}] and [{}]", sensorId, startTime, endTime);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorIdAndDateRange(sensorId, startTime, endTime);
-        Optional.ofNullable(sensorReadings)
-                .filter(readings -> !readings.isEmpty())
-                .orElseThrow(() -> new ResourceNotFoundException("Sensors with id [" + sensorId + "] not found"));
+        validateSensorReadings(sensorId, sensorReadings);
         return calculateAverage(sensorReadings, getMetricType(metric));
+    }
+
+    private List<SensorReading> validateSensorReadings(String sensorId, List<SensorReading> sensorReadings) {
+        return Optional.ofNullable(sensorReadings)
+                .filter(readings -> !readings.isEmpty())
+                .orElseThrow(() -> new ResourceNotFoundException("No readings found for Sensors id [" + sensorId + "]"));
     }
 
     private MetricType getMetricType(String metric) {

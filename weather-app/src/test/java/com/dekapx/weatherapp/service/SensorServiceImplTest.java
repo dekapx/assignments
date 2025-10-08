@@ -60,7 +60,7 @@ public class SensorServiceImplTest {
             this.sensorService.getReadings(SENSOR_ID);
         });
 
-        String expectedMessage = "Sensors with id [" + SENSOR_ID + "] not found";
+        String expectedMessage = "No readings found for Sensors id [" + SENSOR_ID + "]";
         String actualMessage = exception.getMessage();
 
         assertThat(expectedMessage).isEqualTo(actualMessage);
