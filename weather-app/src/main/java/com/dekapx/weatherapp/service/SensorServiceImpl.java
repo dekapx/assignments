@@ -40,7 +40,8 @@ public class SensorServiceImpl implements SensorService {
     public List<SensorReading> getReadings(final String sensorId) {
         log.info("Fetching sensor reading for sensorId: [{}]", sensorId);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorId(sensorId);
-        return validateSensorReadings(sensorId, sensorReadings);
+        validateSensorReadings(sensorId, sensorReadings);
+        return sensorReadings;
     }
 
     @Override
@@ -72,8 +73,8 @@ public class SensorServiceImpl implements SensorService {
         return calculateAverage(sensorReadings, getMetricType(metric));
     }
 
-    private List<SensorReading> validateSensorReadings(String sensorId, List<SensorReading> sensorReadings) {
-        return Optional.ofNullable(sensorReadings)
+    private void validateSensorReadings(String sensorId, List<SensorReading> sensorReadings) {
+        Optional.ofNullable(sensorReadings)
                 .filter(readings -> !readings.isEmpty())
                 .orElseThrow(() -> new ResourceNotFoundException("No readings found for Sensors id [" + sensorId + "]"));
     }
@@ -87,10 +88,14 @@ public class SensorServiceImpl implements SensorService {
         return readings.stream()
                 .mapToDouble(reading -> {
                     switch (metricType) {
-                        case TEMPERATURE: return reading.getTemperature();
-                        case HUMIDITY: return reading.getHumidity();
-                        case WIND_SPEED: return reading.getWindSpeed();
-                        default: throw new IllegalArgumentException("Invalid metric: " + metricType);
+                        case TEMPERATURE:
+                            return reading.getTemperature();
+                        case HUMIDITY:
+                            return reading.getHumidity();
+                        case WIND_SPEED:
+                            return reading.getWindSpeed();
+                        default:
+                            throw new IllegalArgumentException("Invalid metric: " + metricType);
                     }
                 })
                 .average()
