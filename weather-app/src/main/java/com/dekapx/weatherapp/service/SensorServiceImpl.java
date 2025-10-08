@@ -70,6 +70,9 @@ public class SensorServiceImpl implements SensorService {
     public Double getAverageMetricForSensor(String sensorId, String metric, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("Fetching sensor readings for sensorId: [{}] between [{}] and [{}]", sensorId, startTime, endTime);
         List<SensorReading> sensorReadings = this.sensorRepository.findBySensorIdAndDateRange(sensorId, startTime, endTime);
+        Optional.ofNullable(sensorReadings)
+                .filter(readings -> !readings.isEmpty())
+                .orElseThrow(() -> new ResourceNotFoundException("Sensors with id [" + sensorId + "] not found"));
         return calculateAverage(sensorReadings, getMetricType(metric));
     }
 
