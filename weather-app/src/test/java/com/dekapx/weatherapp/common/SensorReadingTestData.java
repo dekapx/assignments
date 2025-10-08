@@ -1,7 +1,6 @@
 package com.dekapx.weatherapp.common;
 
 import com.dekapx.weatherapp.entity.SensorReading;
-import com.dekapx.weatherapp.model.SensorReadingModel;
 
 public class SensorReadingTestData {
     public static final String SENSOR_ID = "Sensor-X";
