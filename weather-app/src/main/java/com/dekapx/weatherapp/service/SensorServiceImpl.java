@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.ToDoubleFunction;
 
 import static com.dekapx.weatherapp.config.CacheConfig.SENSOR_CACHE;
 
@@ -86,19 +87,23 @@ public class SensorServiceImpl implements SensorService {
 
     private double calculateAverage(List<SensorReading> readings, MetricType metricType) {
         return readings.stream()
-                .mapToDouble(reading -> {
-                    switch (metricType) {
-                        case TEMPERATURE:
-                            return reading.getTemperature();
-                        case HUMIDITY:
-                            return reading.getHumidity();
-                        case WIND_SPEED:
-                            return reading.getWindSpeed();
-                        default:
-                            throw new IllegalArgumentException("Invalid metric: " + metricType);
-                    }
-                })
+                .mapToDouble(getSensorReadingAsDouble(metricType))
                 .average()
                 .orElse(Double.NaN);
+    }
+
+    private ToDoubleFunction<SensorReading> getSensorReadingAsDouble(MetricType metricType) {
+        return reading -> {
+            switch (metricType) {
+                case TEMPERATURE:
+                    return reading.getTemperature();
+                case HUMIDITY:
+                    return reading.getHumidity();
+                case WIND_SPEED:
+                    return reading.getWindSpeed();
+                default:
+                    throw new IllegalArgumentException("Invalid metric: " + metricType);
+            }
+        };
     }
 }
