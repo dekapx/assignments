@@ -11,13 +11,15 @@ import java.util.List;
 public class SensorServiceImpl implements SensorService {
 
     @Override
-    public SensorReading getReadings(String sensorId) {
+    public SensorReading findById(String sensorId) {
+        log.info("Finding sensor reading for sensorId: {}", sensorId);
         SensorReading sensorReading = buildSensorReading(sensorId);
         return sensorReading;
     }
 
     @Override
-    public List<SensorReading> getAllReadings() {
+    public List<SensorReading> findAll() {
+        log.info("Finding all sensor readings");
         return List.of(buildSensorReading("sensor-123"));
     }
 

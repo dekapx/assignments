@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SensorService {
-    SensorReading getReadings(String sensorId);
+    SensorReading findById(String sensorId);
 
-    List<SensorReading> getAllReadings();
+    List<SensorReading> findAll();
 }

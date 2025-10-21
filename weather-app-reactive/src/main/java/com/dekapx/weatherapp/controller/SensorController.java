@@ -40,7 +40,7 @@ public class SensorController {
 
     @GetMapping(SENSOR_BY_ID_URL)
     public Mono<SensorReadingModel> getReadings(@PathVariable String sensorId) {
-        SensorReading sensorReading = this.sensorService.getReadings(sensorId);
+        SensorReading sensorReading = this.sensorService.findById(sensorId);
         SensorReadingModel sensorReadingModel = mapToModel(sensorReading);
         return Mono.just(sensorReadingModel);
     }
@@ -48,7 +48,7 @@ public class SensorController {
     @Operation(summary = "Get All Sensor Readings")
     @GetMapping(SENSOR_URL)
     public Flux<SensorReadingModel> getAllReadings() {
-        List<SensorReading> sensorReadings = this.sensorService.getAllReadings();
+        List<SensorReading> sensorReadings = this.sensorService.findAll();
         List<SensorReadingModel> sensorReadingModels = mapToModels(sensorReadings);
         return Flux.fromIterable(sensorReadingModels);
     }
