@@ -2,6 +2,7 @@ package com.dekapx.weatherapp.common;
 
 import com.dekapx.weatherapp.entity.SensorReading;
 
+
 public class SensorReadingTestData {
     public static final String SENSOR_ID = "Sensor-X";
     public static final double TEMPERATURE = 25.5;

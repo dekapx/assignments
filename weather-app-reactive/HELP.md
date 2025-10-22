@@ -4,8 +4,6 @@
 
 - http://localhost:8081/weather-app/api/v1/info
 - http://localhost:8081/weather-app/swagger-ui.html
-- http://localhost:8081/weather-app/api/v1/sensor/average?startTime=2025-10-01T22:11:41.400Z&endTime=2025-10-02T00:13:41.400Z
-- http://localhost:8081/weather-app/api/v1/sensor/Sensor-101/average?metric=temperature&startTime=2025-10-01T22%3A11%3A41.400Z&endTime=2025-10-02T00%3A13%3A41.400Z
 
 ```css
 /api/v1/sensor/{sensorId}
