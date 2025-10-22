@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -39,10 +38,10 @@ public class SensorController {
     }
 
     @GetMapping(SENSOR_BY_ID_URL)
-    public Mono<SensorReadingModel> getReadings(@PathVariable String sensorId) {
-        SensorReading sensorReading = this.sensorService.findById(sensorId);
-        SensorReadingModel sensorReadingModel = mapToModel(sensorReading);
-        return Mono.just(sensorReadingModel);
+    public Flux<SensorReadingModel> getReadings(@PathVariable String sensorId) {
+        List<SensorReading> sensorReadings = this.sensorService.findBySensorId(sensorId);
+        List<SensorReadingModel> sensorReadingModels = mapToModels(sensorReadings);
+        return Flux.fromIterable(sensorReadingModels);
     }
 
     @Operation(summary = "Get All Sensor Readings")
@@ -52,7 +51,6 @@ public class SensorController {
         List<SensorReadingModel> sensorReadingModels = mapToModels(sensorReadings);
         return Flux.fromIterable(sensorReadingModels);
     }
-
 
     private List<SensorReadingModel> mapToModels(List<SensorReading> entities) {
         return entities.stream()
