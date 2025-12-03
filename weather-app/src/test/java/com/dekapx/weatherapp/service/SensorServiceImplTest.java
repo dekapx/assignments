@@ -71,7 +71,7 @@ public class SensorServiceImplTest {
                     assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
                     assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
                 });
-        verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
+        BDDMockito.verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class SensorServiceImplTest {
         String actualMessage = exception.getMessage();
 
         BDDAssertions.then(expectedMessage).isEqualTo(actualMessage);
-        verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
+        BDDMockito.verify(sensorRepository, times(1)).findBySensorId(SENSOR_ID);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class SensorServiceImplTest {
                     assertThat(o.getHumidity()).isEqualTo(HUMIDITY);
                     assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
                 });
-        verify(sensorRepository, times(1)).findAll();
+        BDDMockito.verify(sensorRepository, times(1)).findAll();
     }
 
     @Test
@@ -177,7 +177,7 @@ public class SensorServiceImplTest {
                     assertThat(o.getWindSpeed()).isEqualTo(WIND_SPEED);
                     assertThat(o.getTimestamp()).isNotNull();
                 });
-        verify(sensorRepository, times(1)).save(any(SensorReading.class));
+        BDDMockito.verify(sensorRepository, times(1)).save(any(SensorReading.class));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class SensorServiceImplTest {
         BDDAssertions.then(averageTemperature)
                 .isNotNull()
                 .isEqualTo(TEMPERATURE);
-        verify(sensorRepository, times(1)).findAverageTemperatureByDateRange(any(), any());
+        BDDMockito.verify(sensorRepository, times(1)).findAverageTemperatureByDateRange(any(), any());
     }
 
     @Test
@@ -239,6 +239,6 @@ public class SensorServiceImplTest {
         BDDAssertions.then(averageMetric)
                 .isNotNull()
                 .isEqualTo(TEMPERATURE);
-        verify(sensorRepository, times(1)).findBySensorIdAndDateRange(any(), any(), any());
+        BDDMockito.verify(sensorRepository, times(1)).findBySensorIdAndDateRange(any(), any(), any());
     }
 }
